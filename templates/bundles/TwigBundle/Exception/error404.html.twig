@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Index{% endblock %}
+
+{% block stylesheets %}
+    {{parent() }}
+    <link rel="stylesheet" href="/css/custom.css" />
+{% endblock %}
+
+{% block screen %}Error 404{% endblock %}
+
+{% block screen_breadcrumb %}Error 404{% endblock %}
+
+{% block content %}
+    <div class="text-center">
+        <img src="/images/error404.png"/>
+    </div>
+{% endblock %}

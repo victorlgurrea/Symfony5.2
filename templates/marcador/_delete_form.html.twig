@@ -1,0 +1,4 @@
+<form method="post" action="{{ path('marcador_delete', {'id': marcador.id}) }}" onsubmit="return confirm('Esta seguro de eliminar este elemento?');">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ marcador.id) }}">
+    <button class="btn btn-danger float right">Eliminar</button>
+</form>

@@ -1,0 +1,205 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+	Categoria
+{% endblock %}
+
+{% block stylesheets %}
+	{{parent() }}
+	<link rel="stylesheet" href="/css/custom.css"/>
+{% endblock %}
+
+{% block screen %}Categoria
+{% endblock %}
+
+{% block screen_breadcrumb %}Categoria
+{% endblock %}
+
+{% block content %}
+	<div class="example-wrapper">
+		<div class="row">
+			<div class="col-12">
+				{% include 'includes/_messages.html.twig' %}
+				<button type="button" class="btn btn-primary float-right new_category" data-toggle="modal" data-target="#CategoryModal">
+					new category 
+				</button>
+				<!-- Modal -->
+				<div class="modal fade" id="CategoryModal" tabindex="-1" role="dialog" aria-labelledby="CategoryModalLabel" aria-hidden="true">
+					<div class="modal-dialog" role="document">
+						<div class="modal-content">
+							<form method="POST" action="{{ path('app_add_categoria') }}">
+								<div class="modal-header">
+									<h5 class="modal-title" id="CategoryModalLabel">Categoría</h5>
+									<button type="button" class="close close_modal" data-dismiss="modal" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>
+								</div>
+								<div class="modal-body">
+
+									<div class="form-group">
+										<label for="name">Nombre:</label>
+										<input type="text" class="form-control" id="name" name="name" placeholder="Nombre...">
+									</div>
+
+									<div class="form-group">
+										<label for="name">Color:</label>
+										<input type="color" class="form-control" id="color" name="color" placeholder="Color...">
+									</div>
+
+
+								</div>
+								<div class="modal-footer">
+									<input type="hidden" value="{{ csrf_token('categoria') }}" name="_token">
+									<input type="hidden" value="" id="id" name="id">
+									<button type="button" class="btn btn-secondary close_modal" data-dismiss="modal">Cerrar</button>
+									<button type="submit" class="btn btn-outline-primary">Guardar</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row mt-2">
+			<div class="col-12">
+				<div class="table-responsive">
+					<table class="dataTable table table-bordered" id="categories" width="100%" cellspacing="0">
+						<thead>
+							<tr class="text-center">
+								<th>ID</th>
+								<th>Nombre</th>
+								<th>Color</th>
+								<th>Acciones</th>
+							</tr>
+						</thead>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal fade" id="removeModal" tabindex="-1" role="dialog" aria-labelledby="removeModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="removeModalLabel">Eliminar</h5>
+        <button type="button" class="close close_eliminar" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+         <p>Esta seguro de eliminar el registro <strong class="name_remove_strong"></strong> ?</p>
+      </div>
+      <div class="modal-footer">
+        <form method="POST" action="{{ path('app_remove_categoria') }}">
+            <input type="hidden" name="id_remove" id="id_remove" value="">
+            <button type="button" class="btn btn-secondary close_eliminar" data-dismiss="modal">Cerrar</button>
+            <button type="submit" class="btn btn-danger">Eliminar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block javascripts %}
+	{{ parent() }}
+	<script type="text/javascript" >
+	
+		$(document).ready(function () {
+
+			if ($(".alert-dismissible")[0]){
+				setTimeout(function(){ $(".close").trigger('click'); }, 3000);
+			}
+
+                    let table = $('#categories').DataTable({
+                    "language": {
+                    	"url": "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
+                    },
+                    'dataType': 'Json',
+                    "ajax": {
+						"url": "{{ path('app_listado_categoria') }}",
+						"type": "GET",
+						"dataSrc": ""
+                    },
+                    "columns": [
+						{
+							"data": "id"
+						}, {
+							"data": "name"
+						},{
+							"render": function (data, type, row, meta) {
+
+								return `
+										<div>
+											<div style="background-color:`+ row['color']+`;width:25px;height:25px;margin:0px auto;">
+										</div>`;
+							}
+						}, {
+							"render": function (data, type, row, meta) {
+
+								return `
+										<div class="dropdown text-center">
+											<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+												Acciones
+											</button>
+											<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+												<a class="dropdown-item delete" data-name=`+row['name'] +` data-id=` + row['id'] + ` style="cursor:pointer;" data-toggle="modal" data-target="#removeModal">Eliminar</a>
+												<a class="dropdown-item edit" data-name=`+row['name'] +` data-color=`+row['color'] +` data-id=` + row['id'] + ` style="cursor:pointer;">Editar</a>
+											</div>
+										</div>`;
+							}
+						}
+                    ],
+                    "columnDefs": 
+					[
+						{
+							"searchable": true,
+							"targets": [0, 1]
+						},
+						{
+							"targets": [0, 1, 2],
+							"className": "text-center"
+						}
+                    ],
+                    "searchable": true,
+                    "pageLength": 5
+                    });
+
+	});
+
+	$(document).on('click','.edit',function (){
+						var name = $(this).data("name") ;
+						var color = $(this).data("color") ;
+						var id= $(this).data("id") ;
+
+						$("#name").val(name);
+						$("#color").val(color);
+						$("#id").val(id);
+
+						$(".new_category").trigger('click'); 
+
+	});
+
+		$(document).on('click','.delete',function (){
+						var name_remove = $(this).data("name") ;
+						var id_remove= $(this).data("id") ;
+
+						$(".name_remove_strong").html(name_remove);
+						$("#id_remove").val(id_remove);
+
+	});
+
+		$(document).on('click','.close_eliminar',function (){
+						$(".name_remove_strong").html('');
+						$("#id_remove").val('');
+
+	});
+
+	$(document).on('click','.close_modal',function (){
+						$("#name").val('');
+						$("#color").val('#000000');
+						$("#id").val('');
+
+	});
+	</script>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Index{% endblock %}
+
+{% block stylesheets %}
+    {{parent() }}
+    <link rel="stylesheet" href="/css/custom.css" />
+{% endblock %}
+
+{% block screen %}Dashboard{% endblock %}
+
+{% block screen_breadcrumb %}Dashboard{% endblock %}
+
+{% block content %}
+
+  {{ parent() }}
+    <div class="example-wrapper">
+    
+        <h1>{{ user_name }} Bienvenido! ✅</h1>
+    </div>
+
+{% endblock %}

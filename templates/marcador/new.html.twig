@@ -1,0 +1,26 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+	New Marcador
+{% endblock %}
+
+{% block stylesheets %}
+	{{parent() }}
+	<link rel="stylesheet" href="/css/custom.css"/>
+{% endblock %}
+
+{% block screen %}New Marcador
+{% endblock %}
+
+{% block screen_breadcrumb %}New Marcador
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-6 offset-3">
+        {{ include('marcador/_form.html.twig') }}
+
+        <a class="btn btn-outline-primary float-right" href="{{ path('marcador_index') }}">Volver</a>
+    </div>
+</div>
+{% endblock %}

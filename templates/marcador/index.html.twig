@@ -1,0 +1,212 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}
+	Marcador
+{% endblock %}
+
+{% block stylesheets %}
+	{{parent() }}
+	<link rel="stylesheet" href="/css/custom.css"/>
+{% endblock %}
+
+{% block screen %}Marcador
+{% endblock %}
+
+{% block screen_breadcrumb %}Marcador
+{% endblock %}
+
+{% block content %}
+
+
+	<div class="example-wrapper">
+		<div class="row">
+			<div class="col-12">
+			<div class="message"></div>
+				{% include 'includes/_messages.html.twig' %}
+				<a  class="btn btn-primary float-right" href="{{ path('marcador_new') }}">
+					new marcador 
+				</a>
+			</div>
+		</div>
+		<div class="row mt-2">
+			<div class="col-12">
+				<div class="table-responsive">
+					<table class="dataTable table table-bordered" id="marcadores" width="100%" cellspacing="0">
+						<thead>
+							<tr class="text-center">
+								<th>ID</th>
+								<th>Nombre</th>
+								<th>Url</th>
+                                <th>Categoría</th>
+								<th>Color</th>
+								<th>Acciones</th>
+							</tr>
+						</thead>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Url</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for marcador in marcadors %}
+            <tr>
+                <td>{{ marcador.id }}</td>
+                <td>{{ marcador.name }}</td>
+                <td>{{ marcador.url }}</td>
+                <td>
+                    <a href="{{ path('marcador_show', {'id': marcador.id}) }}">show</a>
+                    <a href="{{ path('marcador_edit', {'id': marcador.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="4">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+	<script type="text/javascript" >
+	
+		$(document).ready(function () {
+
+			if ($(".alert-dismissible")[0]){
+				setTimeout(function(){ $(".close").trigger('click'); }, 3000);
+			}
+
+                    let table = $('#marcadores').DataTable({
+                    "language": {
+                    	"url": "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
+                    },
+                    'dataType': 'Json',
+                    "ajax": {
+						"url": "{{ path('app_listado_marcadores') }}",
+						"type": "GET",
+						"dataSrc": ""
+                    },
+                    "columns": [
+						{
+							"data": "id"
+						}, {
+							"data": "name"
+						},{
+                            "data": "url"
+						},{ 
+                            "data": "category_name"
+                        },{
+							"render": function (data, type, row, meta) {
+								
+								return `
+										<div style="width:25px;height:25px;background:` + row['color'] + `;margin:0px auto;">
+										
+										</div>`;
+							}
+						},{
+							"render": function (data, type, row, meta) {
+								
+								return `
+										<div class="dropdown text-center">
+											<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+												Acciones
+											</button>
+											<div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+												<a class="dropdown-item delete" data-id=` + row['id'] + ` style="cursor:pointer;">Eliminar</a>
+												<a class="dropdown-item edit"  data-path='marcador-edit' data-id='` + row['id']+ `' style="cursor:pointer;" >Editar</a>
+											</div>
+										</div>`;
+							}
+						}
+                    ],
+                    "columnDefs": 
+					[
+						{
+							"searchable": true,
+							"targets": [0, 1, 2, 3]
+						},
+						{
+							"targets": [0, 1, 2, 3],
+							"className": "text-center"
+						}
+                    ],
+                    "searchable": true,
+                    "pageLength": 5
+                    });
+
+
+							$(document).on('click','.edit',function (){
+
+					
+					
+					let url = "{{ (path('marcador_edit', {'id': 'value'})) }}";
+
+					url = url.replace("value", $(this).data("id"));
+
+					
+
+			location.href = url;
+		});
+
+		$(document).on('click','.delete',function (e){
+			e.preventDefault();
+
+			if(! confirm("Seguro de eliminar este marcador?")) {
+				return;
+			}		
+		
+			let url = "{{ (path('marcador_remove', {'id': 'value'})) }}";
+
+					url = url.replace("value", $(this).data("id"));
+
+			let url_index = "{{ path('marcador_index') }}";					
+
+			$.ajax({
+                             method: "POST",
+                             url: url,
+                             dataType: 'json',
+                             data: {
+								'id' : $(this).data("id")
+             				},
+							   success: function (data, reponse) {
+								table.ajax.reload();
+								fill_message(data);
+								setTimeout(function(){ $(".close").trigger("click"); }, 3000);
+								
+							},
+			});
+
+	});
+
+	});
+
+   function fill_message(data) {
+	   var alert = (data) ? 'alert-success' : 'alert-danger';
+	   var message = (data) ? 'Elimiando con existo' : "Error eliminando registro";
+
+	   $(".message").html(`
+				<div class="alert `+ alert +` alert-dismissible fade show" role="alert">
+			`+ message +`
+			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+			</div>
+	 `);
+    }
+
+		
+	</script>
+{% endblock %}
